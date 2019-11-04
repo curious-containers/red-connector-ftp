@@ -27,6 +27,9 @@ def _receive_file(access, local_file_path):
 
     parsed_url = urlparse(url)
 
+    if not parsed_url.netloc:
+        raise InvalidAccessInformationError('Given url "{}" does not contain host information.'.format(url))
+
     with FTP(parsed_url.netloc) as ftp_client:
         ftp_client.login()
 
@@ -41,7 +44,7 @@ def _receive_file_validate(access):
     jsonschema.validate(access, FILE_SCHEMA)
 
 
-# @graceful_error
+@graceful_error
 def receive_file():
     parser = ArgumentParser(description=RECEIVE_FILE_DESCRIPTION)
     parser.add_argument(

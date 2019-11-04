@@ -28,12 +28,11 @@ def _receive_file(access, local_file_path):
     if url is None:
         raise InvalidAccessInformationError('Could not find "url" in access information.')
 
-    ftp_client = FTP(host)
-    ftp_client.login()
+    with FTP(host) as ftp_client:
+        ftp_client.login()
 
-    with open(local_file_path, 'wb') as output_file:
-        ftp_client.retrbinary('RETR {}'.format(url), output_file.write)
-    ftp_client.quit()
+        with open(local_file_path, 'wb') as output_file:
+            ftp_client.retrbinary('RETR {}'.format(url), output_file.write)
 
 
 def _receive_file_validate(access):

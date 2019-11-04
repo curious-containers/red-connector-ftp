@@ -16,6 +16,7 @@ RECEIVE_DIR_VALIDATE_DESCRIPTION = 'Validate access data for receive-dir.'
 
 
 def _receive_dir(access, local_dir_path, listing):
+    del listing  # ignore listing
     with open(access) as f:
         access = json.load(f)
 
@@ -54,13 +55,15 @@ def _receive_dir(access, local_dir_path, listing):
 
 
 def _receive_dir_validate(access, listing):
+    del listing  # ignore listing
+
     with open(access) as f:
         access = json.load(f)
 
     jsonschema.validate(access, ARCHIVE_SCHEMA)
 
 
-# @graceful_error
+@graceful_error
 def receive_dir():
     parser = ArgumentParser(description=RECEIVE_DIR_DESCRIPTION)
     parser.add_argument(

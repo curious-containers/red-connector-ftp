@@ -4,7 +4,7 @@ from argparse import ArgumentParser
 from ftplib import FTP
 
 import jsonschema
-from red_connector_ftp.commons.helpers import graceful_error
+from red_connector_ftp.commons.helpers import graceful_error, InvalidAccessInformationError
 from red_connector_ftp.commons.schemas import FILE_SCHEMA
 
 RECEIVE_FILE_DESCRIPTION = 'Receive input file from FTP server.'
@@ -68,5 +68,3 @@ def receive_file_validate():
     _receive_file_validate(**args.__dict__)
 
 
-class InvalidAccessInformationError(Exception):
-    pass

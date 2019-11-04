@@ -24,3 +24,7 @@ def graceful_error(func):
             exit(3)
 
     return wrapper
+
+
+class InvalidAccessInformationError(Exception):
+    pass

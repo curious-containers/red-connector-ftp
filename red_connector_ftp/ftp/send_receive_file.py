@@ -68,5 +68,3 @@ def receive_file_validate():
     )
     args = parser.parse_args()
     _receive_file_validate(**args.__dict__)
-
-

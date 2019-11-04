@@ -1,8 +1,7 @@
 import tempfile
 import json
 from argparse import ArgumentParser
-from ftplib import FTP
-from urllib.parse import urlparse
+from urllib.request import urlopen
 
 import jsonschema
 import shutil
@@ -23,21 +22,19 @@ def _receive_dir(access, local_dir_path, listing):
     if url is None:
         raise InvalidAccessInformationError('Could not find "url" in access information.')
 
-    parsed_url = urlparse(url)
+    with tempfile.NamedTemporaryFile(suffix='.zip') as f:
+        r = urlopen(url)
+        while True:
+            chunk = r.read(4096)
+            if not chunk:
+                break
+            f.write(chunk)
 
-    with FTP(parsed_url.netloc) as ftp_client:
-        ftp_client.login()
-
-        with tempfile.NamedTemporaryFile(suffix='.zip') as archive_output_file:
-            ftp_client.retrbinary('RETR {}'.format(parsed_url.path), archive_output_file.write)
-            archive_output_file.flush()
-
-            shutil.unpack_archive(archive_output_file.name, local_dir_path, access['archiveFormat'])
+        f.flush()
+        shutil.unpack_archive(f.name, local_dir_path, access['archiveFormat'])
 
 
 def _receive_dir_validate(access, listing):
-    del listing  # ignore listing
-
     with open(access) as f:
         access = json.load(f)
 

@@ -1,8 +1,7 @@
 import json
 import os
 from argparse import ArgumentParser
-from ftplib import FTP
-from urllib.parse import urlparse
+from urllib.request import urlopen
 
 import jsonschema
 from red_connector_ftp.commons.helpers import graceful_error, InvalidAccessInformationError
@@ -25,16 +24,14 @@ def _receive_file(access, local_file_path):
     if url is None:
         raise InvalidAccessInformationError('Could not find "url" in access information.')
 
-    parsed_url = urlparse(url)
+    r = urlopen(url)
 
-    if not parsed_url.netloc:
-        raise InvalidAccessInformationError('Given url "{}" does not contain host information.'.format(url))
-
-    with FTP(parsed_url.netloc) as ftp_client:
-        ftp_client.login()
-
-        with open(local_file_path, 'wb') as output_file:
-            ftp_client.retrbinary('RETR {}'.format(parsed_url.path), output_file.write)
+    with open(local_file_path, 'wb') as f:
+        while True:
+            chunk = r.read(4096)
+            if not chunk:
+                break
+            f.write(chunk)
 
 
 def _receive_file_validate(access):

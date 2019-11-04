@@ -4,6 +4,7 @@ import tempfile
 import json
 from argparse import ArgumentParser
 from ftplib import FTP
+from urllib.parse import urlparse
 
 import jsonschema
 import shutil
@@ -20,19 +21,17 @@ def _receive_dir(access, local_dir_path, listing):
     with open(access) as f:
         access = json.load(f)
 
-    host = access.get('host')
-    if host is None:
-        raise InvalidAccessInformationError('Could not find "host" in access information.')
-
     url = access.get('url')
     if url is None:
         raise InvalidAccessInformationError('Could not find "url" in access information.')
 
-    with FTP(host) as ftp_client:
+    parsed_url = urlparse(url)
+
+    with FTP(parsed_url.netloc) as ftp_client:
         ftp_client.login()
 
         with tempfile.NamedTemporaryFile(suffix='.zip') as archive_output_file:
-            ftp_client.retrbinary('RETR {}'.format(url), archive_output_file.write)
+            ftp_client.retrbinary('RETR {}'.format(parsed_url.path), archive_output_file.write)
             archive_output_file.flush()
 
             shutil.unpack_archive(archive_output_file.name, local_dir_path, access['archiveFormat'])

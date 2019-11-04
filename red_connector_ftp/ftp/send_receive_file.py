@@ -2,6 +2,7 @@ import json
 import os
 from argparse import ArgumentParser
 from ftplib import FTP
+from urllib.parse import urlparse
 
 import jsonschema
 from red_connector_ftp.commons.helpers import graceful_error, InvalidAccessInformationError
@@ -20,19 +21,17 @@ def _receive_file(access, local_file_path):
             'Could not create local file "{}". The parent directory does not exist.'.format(local_file_path)
         )
 
-    host = access.get('host')
-    if host is None:
-        raise InvalidAccessInformationError('Could not find "host" in access information.')
-
     url = access.get('url')
     if url is None:
         raise InvalidAccessInformationError('Could not find "url" in access information.')
 
-    with FTP(host) as ftp_client:
+    parsed_url = urlparse(url)
+
+    with FTP(parsed_url.netloc) as ftp_client:
         ftp_client.login()
 
         with open(local_file_path, 'wb') as output_file:
-            ftp_client.retrbinary('RETR {}'.format(url), output_file.write)
+            ftp_client.retrbinary('RETR {}'.format(parsed_url.path), output_file.write)
 
 
 def _receive_file_validate(access):
@@ -42,7 +41,7 @@ def _receive_file_validate(access):
     jsonschema.validate(access, FILE_SCHEMA)
 
 
-@graceful_error
+# @graceful_error
 def receive_file():
     parser = ArgumentParser(description=RECEIVE_FILE_DESCRIPTION)
     parser.add_argument(

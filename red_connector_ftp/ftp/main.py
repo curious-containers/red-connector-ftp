@@ -1,10 +1,10 @@
 from collections import OrderedDict
 
-from red_connector_ftp.cli_modes import cli_modes
+from red_connector_ftp.commons.cli_modes import cli_modes
 from red_connector_ftp.version import VERSION
 
-from red_connector_ftp.send_receive_file import receive_file, receive_file_validate
-from red_connector_ftp.send_receive_file import RECEIVE_FILE_DESCRIPTION, RECEIVE_FILE_VALIDATE_DESCRIPTION
+from red_connector_ftp.ftp.send_receive_file import receive_file, receive_file_validate
+from red_connector_ftp.ftp.send_receive_file import RECEIVE_FILE_DESCRIPTION, RECEIVE_FILE_VALIDATE_DESCRIPTION
 # from red_connector_ftp.send_receive_file import send_file, send_file_validate
 # from red_connector_ftp.send_receive_file import SEND_FILE_DESCRIPTION, SEND_FILE_VALIDATE_DESCRIPTION
 

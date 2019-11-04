@@ -4,8 +4,8 @@ from argparse import ArgumentParser
 from ftplib import FTP
 
 import jsonschema
-from red_connector_ftp.helpers import graceful_error
-from red_connector_ftp.schemas import FILE_SCHEMA
+from red_connector_ftp.commons.helpers import graceful_error
+from red_connector_ftp.commons.schemas import FILE_SCHEMA
 
 RECEIVE_FILE_DESCRIPTION = 'Receive input file from FTP server.'
 RECEIVE_FILE_VALIDATE_DESCRIPTION = 'Validate access data for receive-file.'

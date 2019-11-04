@@ -19,4 +19,5 @@ requires = ["poetry>=0.12"]
 build-backend = "poetry.masonry.api"
 
 [tool.poetry.scripts]
-red-connector-ftp = 'red_connector_ftp.main:main'
+red-connector-ftp = 'red_connector_ftp.ftp.main:main'
+red-connector-ftp-archive = 'red_connector_ftp.ftp_archive.main:main'

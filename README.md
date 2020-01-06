@@ -1,6 +1,6 @@
 # RED Connector FTP
 
-RED Connector SFTP is part of the Curious Containers project.
+RED Connector FTP is part of the Curious Containers project.
 
 For more information please refer to the Curious Containers [documentation](https://www.curious-containers.cc/).
 

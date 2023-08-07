@@ -17,7 +17,7 @@ def _receive_file(access, local_file_path):
     with open(access) as f:
         access = json.load(f)
     
-    if not os.path.isdir(os.path.dirname(local_file_path)):
+    if not os.path.isdir(os.path.dirname(os.path.abspath(local_file_path))):
         raise NotADirectoryError(
             'Could not create local file "{}". The parent directory does not exist.'.format(local_file_path)
         )

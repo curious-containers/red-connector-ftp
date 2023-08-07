@@ -19,6 +19,16 @@ def getFTPConnetion(url):
     
     return ftp, ftp_path
 
+def createRemoteDirectorys(ftp, remote_dir):
+    if remote_dir:
+        dirs_to_create = remote_dir.split('/')
+        for dir_part in dirs_to_create:
+            try:
+                ftp.cwd(dir_part)
+            except Exception:
+                ftp.mkd(dir_part)
+                ftp.cwd(dir_part)
+
 def graceful_error(func):
     @wraps(func)
     def wrapper(*args, **kwargs):

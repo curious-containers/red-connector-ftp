@@ -1,10 +1,12 @@
 import json
 import os
+import ftplib
 from argparse import ArgumentParser
 from urllib.request import urlopen
+from urllib.parse import urlparse
 
 import jsonschema
-from red_connector_ftp.commons.helpers import graceful_error, InvalidAccessInformationError
+from red_connector_ftp.commons.helpers import graceful_error, InvalidAccessInformationError, getFTPConnetion
 from red_connector_ftp.commons.schemas import FILE_SCHEMA
 
 RECEIVE_FILE_DESCRIPTION = 'Receive input file from FTP server.'
@@ -14,7 +16,7 @@ RECEIVE_FILE_VALIDATE_DESCRIPTION = 'Validate access data for receive-file.'
 def _receive_file(access, local_file_path):
     with open(access) as f:
         access = json.load(f)
-
+    
     if not os.path.isdir(os.path.dirname(local_file_path)):
         raise NotADirectoryError(
             'Could not create local file "{}". The parent directory does not exist.'.format(local_file_path)
@@ -23,15 +25,11 @@ def _receive_file(access, local_file_path):
     url = access.get('url')
     if url is None:
         raise InvalidAccessInformationError('Could not find "url" in access information.')
-
-    r = urlopen(url)
-
+    
+    ftp, ftp_path = getFTPConnetion(url)
     with open(local_file_path, 'wb') as f:
-        while True:
-            chunk = r.read(4096)
-            if not chunk:
-                break
-            f.write(chunk)
+        ftp.retrbinary(f"RETR {ftp_path}", f.write)
+    ftp.quit()
 
 
 def _receive_file_validate(access):

@@ -1,9 +1,23 @@
 import os
 import sys
+import ftplib
 from functools import wraps
+from urllib.parse import urlparse
 
 import jsonschema
 
+def getFTPConnetion(url):
+    parsed_url = urlparse(url)
+    ftp_host = parsed_url.hostname
+    ftp_path = parsed_url.path
+    
+    if ftp_path.startswith("/"):
+        ftp_path = ftp_path[1:]
+    
+    ftp = ftplib.FTP(ftp_host)
+    ftp.login()
+    
+    return ftp, ftp_path
 
 def graceful_error(func):
     @wraps(func)

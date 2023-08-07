@@ -6,28 +6,14 @@ from urllib.parse import urlparse
 
 import jsonschema
 
-def getFTPConnetion(url):
+def parseFTP(url):
     parsed_url = urlparse(url)
     ftp_host = parsed_url.hostname
     ftp_path = parsed_url.path
-    
     if ftp_path.startswith("/"):
         ftp_path = ftp_path[1:]
     
-    ftp = ftplib.FTP(ftp_host)
-    ftp.login()
-    
-    return ftp, ftp_path
-
-def createRemoteDirectorys(ftp, remote_dir):
-    if remote_dir:
-        dirs_to_create = remote_dir.split('/')
-        for dir_part in dirs_to_create:
-            try:
-                ftp.cwd(dir_part)
-            except Exception:
-                ftp.mkd(dir_part)
-                ftp.cwd(dir_part)
+    return ftp_host, ftp_path
 
 def graceful_error(func):
     @wraps(func)

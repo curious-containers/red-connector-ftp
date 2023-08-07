@@ -1,12 +1,11 @@
 import json
 import os
-import ftplib
+import ftputil
+import ftputil.error
 from argparse import ArgumentParser
-from urllib.request import urlopen
-from urllib.parse import urlparse
 
 import jsonschema
-from red_connector_ftp.commons.helpers import graceful_error, InvalidAccessInformationError, getFTPConnetion, createRemoteDirectorys
+from red_connector_ftp.commons.helpers import graceful_error, InvalidAccessInformationError, parseFTP
 from red_connector_ftp.commons.schemas import FILE_SCHEMA
 
 RECEIVE_FILE_DESCRIPTION = 'Receive input file from FTP server.'
@@ -29,10 +28,12 @@ def _receive_file(access, local_file_path):
     if url is None:
         raise InvalidAccessInformationError('Could not find "url" in access information.')
     
-    ftp, ftp_path = getFTPConnetion(url)
-    with open(local_file_path, 'wb') as f:
-        ftp.retrbinary(f"RETR {ftp_path}", f.write)
-    ftp.quit()
+    ftp_host, ftp_path = parseFTP(url)
+    with ftputil.FTPHost(ftp_host, "anonymous") as ftp_host:
+        if ftp_host.path.isfile(ftp_path):
+            ftp_host.download(ftp_path, local_file_path)
+        else:
+            raise FileNotFoundError('Could not find remote file "{}"'.format(ftp_path))
 
 
 def _receive_file_validate(access):
@@ -53,14 +54,11 @@ def _send_file(access, local_file_path):
     if url is None:
         raise InvalidAccessInformationError('Could not find "url" in access information.')
     
-    ftp, ftp_path = getFTPConnetion(url)
-    
-    remote_dir, remote_filename = os.path.split(ftp_path)
-    createRemoteDirectorys(ftp, remote_dir)
-    
-    with open(local_file_path, 'rb') as f:
-        ftp.storbinary(f"STOR {remote_filename}", f)
-    ftp.quit()
+    ftp_host, ftp_path = parseFTP(url)
+    remote_dir = os.path.dirname(ftp_path)
+    with ftputil.FTPHost(ftp_host, "anonymous") as ftp_host:
+        ftp_host.makedirs(remote_dir, exist_ok=True)
+        ftp_host.upload(local_file_path, ftp_path)
 
 
 def _send_file_validate(access):

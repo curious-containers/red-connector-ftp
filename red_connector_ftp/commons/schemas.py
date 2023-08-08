@@ -1,9 +1,20 @@
 from copy import deepcopy
 
+_AUTH_SCHEMA = {
+    'type': 'object',
+    'properties': {
+        'username': {'type': 'string'},
+        'password': {'type': 'string'},
+    },
+    'additionalProperties': False,
+    'required': ['username']
+}
+
 FILE_SCHEMA = {
     'type': 'object',
     'properties': {
         'url': {'type': 'string'},
+        'auth': _AUTH_SCHEMA,
     },
     'additionalProperties': False,
     'required': ['url']

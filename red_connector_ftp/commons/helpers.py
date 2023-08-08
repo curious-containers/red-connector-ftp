@@ -1,6 +1,6 @@
 import os
 import sys
-import ftplib
+import ftputil
 from functools import wraps
 from urllib.parse import urlparse
 
@@ -21,6 +21,26 @@ def parse_ftp(url):
     
     return ftp_host, ftp_path
 
+def get_ftp_client(ftp_host, access):
+    """
+    Creates and returns an FTP client for the specified FTP host with optional authentication.
+
+    :param ftp_host: The hostname or IP address of the FTP server.
+    :param access: An dictionary containing access information, such as authentication details.
+    :return: An instance of ftputil.FTPHost connected to the FTP server.
+    """
+    ftp_username = "anonymous"
+    ftp_password = None
+    
+    if 'auth' in access:
+        ftp_username = access.auth.username
+        if 'password' in access.auth:
+            ftp_password = access.auth.password
+    
+    if ftp_password is None:
+        return ftputil.FTPHost(ftp_host, ftp_username)
+    else:
+        return ftputil.FTPHost(ftp_host, ftp_username, ftp_password)
 
 def download_ftp_directory(ftp_host, base_directory, remote_directory):
     """
@@ -38,7 +58,7 @@ def download_ftp_directory(ftp_host, base_directory, remote_directory):
         if ftp_host.path.isfile(element_path):
             ftp_host.download(element_path, local_path)
         else:
-            download_ftp_directory(ftp_host, element_path, local_path)
+            download_ftp_directory(ftp_host, local_path, element_path)
 
 
 def upload_ftp_directory(ftp_host, base_directory, remote_directory):
@@ -57,7 +77,7 @@ def upload_ftp_directory(ftp_host, base_directory, remote_directory):
         if(os.path.isfile(element_path)):
             ftp_host.upload(element_path, remote_path)
         else:
-            upload_ftp_directory(ftp_host, remote_path, element_path)
+            upload_ftp_directory(ftp_host, element_path, remote_path)
 
 
 def download_ftp_listing(ftp_host, base_directory, remote_directory, listing, path="./"):

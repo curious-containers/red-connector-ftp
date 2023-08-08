@@ -5,7 +5,7 @@ import ftputil.error
 from argparse import ArgumentParser
 
 import jsonschema
-from red_connector_ftp.commons.helpers import graceful_error, InvalidAccessInformationError, parse_ftp
+from red_connector_ftp.commons.helpers import graceful_error, InvalidAccessInformationError, parse_ftp, get_ftp_client
 from red_connector_ftp.commons.schemas import FILE_SCHEMA
 
 RECEIVE_FILE_DESCRIPTION = 'Receive input file from FTP server.'
@@ -29,11 +29,14 @@ def _receive_file(access, local_file_path):
         raise InvalidAccessInformationError('Could not find "url" in access information.')
     
     ftp_host, ftp_path = parse_ftp(url)
-    with ftputil.FTPHost(ftp_host, "anonymous") as ftp_host:
-        if ftp_host.path.isfile(ftp_path):
-            ftp_host.download(ftp_path, local_file_path)
-        else:
-            raise FileNotFoundError('Could not find remote file "{}"'.format(ftp_path))
+    ftp_host = get_ftp_client(ftp_host, access)
+    
+    if ftp_host.path.isfile(ftp_path):
+        ftp_host.download(ftp_path, local_file_path)
+    else:
+        raise FileNotFoundError('Could not find remote file "{}"'.format(ftp_path))
+    
+    ftp_host.close()
 
 
 def _receive_file_validate(access):
@@ -56,9 +59,12 @@ def _send_file(access, local_file_path):
     
     ftp_host, ftp_path = parse_ftp(url)
     remote_dir = os.path.dirname(ftp_path)
-    with ftputil.FTPHost(ftp_host, "anonymous") as ftp_host:
-        ftp_host.makedirs(remote_dir, exist_ok=True)
-        ftp_host.upload(local_file_path, ftp_path)
+    ftp_host = get_ftp_client(ftp_host, access)
+    
+    ftp_host.makedirs(remote_dir, exist_ok=True)
+    ftp_host.upload(local_file_path, ftp_path)
+    
+    ftp_host.close()
 
 
 def _send_file_validate(access):

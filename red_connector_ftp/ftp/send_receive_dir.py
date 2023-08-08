@@ -6,7 +6,7 @@ from argparse import ArgumentParser
 
 import jsonschema
 from red_connector_ftp.commons.helpers import graceful_error, InvalidAccessInformationError, parse_ftp, download_ftp_directory, \
-    download_ftp_listing, upload_ftp_directory, upload_ftp_listing
+    download_ftp_listing, upload_ftp_directory, upload_ftp_listing, get_ftp_client
 from red_connector_ftp.commons.schemas import FILE_SCHEMA, LISTING_SCHEMA
 
 RECEIVE_DIR_DESCRIPTION = 'Receive input dir from FTP server.'
@@ -27,7 +27,7 @@ def _load_access_listing(access, listing):
     return access, listing
 
 
-def _receive_dir(access, local_dir_path, listing):    
+def _receive_dir(access, local_dir_path, listing):
     access, listing = _load_access_listing(access, listing)
     local_dir_path = os.path.normpath(local_dir_path)
     
@@ -41,11 +41,14 @@ def _receive_dir(access, local_dir_path, listing):
         raise InvalidAccessInformationError('Could not find "url" in access information.')
     
     ftp_host, ftp_path = parse_ftp(url)
-    with ftputil.FTPHost(ftp_host, "anonymous") as ftp_host:
-        if listing:
-            download_ftp_listing(ftp_host, local_dir_path, ftp_path, listing)
-        else:
-            download_ftp_directory(ftp_host, local_dir_path, ftp_path)
+    ftp_host = get_ftp_client(ftp_host, access)
+    
+    if listing:
+        download_ftp_listing(ftp_host, local_dir_path, ftp_path, listing)
+    else:
+        download_ftp_directory(ftp_host, local_dir_path, ftp_path)
+    
+    ftp_host.close()
 
 
 def _receive_dir_validate(access, listing):
@@ -68,12 +71,15 @@ def _send_dir(access, local_dir_path, listing):
         raise InvalidAccessInformationError('Could not find "url" in access information.')
     
     ftp_host, ftp_path = parse_ftp(url)
-    with ftputil.FTPHost(ftp_host, "anonymous") as ftp_host:
-        if listing:
-            ftp_host.makedirs(ftp_path, exist_ok=True)
-            upload_ftp_listing(ftp_host, local_dir_path, ftp_path, listing)
-        else:
-            upload_ftp_directory(ftp_host, local_dir_path, ftp_path)
+    ftp_host = get_ftp_client(ftp_host, access)
+    
+    if listing:
+        ftp_host.makedirs(ftp_path, exist_ok=True)
+        upload_ftp_listing(ftp_host, local_dir_path, ftp_path, listing)
+    else:
+        upload_ftp_directory(ftp_host, local_dir_path, ftp_path)
+    
+    ftp_host.close()
 
 
 def _send_dir_validate(access, listing):

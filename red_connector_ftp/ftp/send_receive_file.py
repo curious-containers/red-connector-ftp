@@ -29,14 +29,15 @@ def _receive_file(access, local_file_path):
         raise InvalidAccessInformationError('Could not find "url" in access information.')
     
     ftp_host, ftp_path = parse_ftp(url)
-    ftp_host = get_ftp_client(ftp_host, access)
+    ftp_client = get_ftp_client(ftp_host, access)
     
-    if ftp_host.path.isfile(ftp_path):
-        ftp_host.download(ftp_path, local_file_path)
+    print(ftp_client.listdir(ftp_client.curdir))
+    if ftp_client.path.isfile(ftp_path):
+        ftp_client.download(ftp_path, local_file_path)
     else:
         raise FileNotFoundError('Could not find remote file "{}"'.format(ftp_path))
     
-    ftp_host.close()
+    ftp_client.close()
 
 
 def _receive_file_validate(access):
@@ -59,12 +60,13 @@ def _send_file(access, local_file_path):
     
     ftp_host, ftp_path = parse_ftp(url)
     remote_dir = os.path.dirname(ftp_path)
-    ftp_host = get_ftp_client(ftp_host, access)
+    ftp_client = get_ftp_client(ftp_host, access)
     
-    ftp_host.makedirs(remote_dir, exist_ok=True)
-    ftp_host.upload(local_file_path, ftp_path)
+    if remote_dir:
+        ftp_client.makedirs(remote_dir, exist_ok=True)
+    ftp_client.upload(local_file_path, ftp_path)
     
-    ftp_host.close()
+    ftp_client.close()
 
 
 def _send_file_validate(access):

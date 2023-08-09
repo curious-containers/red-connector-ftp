@@ -41,14 +41,14 @@ def _receive_dir(access, local_dir_path, listing):
         raise InvalidAccessInformationError('Could not find "url" in access information.')
     
     ftp_host, ftp_path = parse_ftp(url)
-    ftp_host = get_ftp_client(ftp_host, access)
+    ftp_client = get_ftp_client(ftp_host, access)
     
     if listing:
-        download_ftp_listing(ftp_host, local_dir_path, ftp_path, listing)
+        download_ftp_listing(ftp_client, local_dir_path, ftp_path, listing)
     else:
-        download_ftp_directory(ftp_host, local_dir_path, ftp_path)
+        download_ftp_directory(ftp_client, local_dir_path, ftp_path)
     
-    ftp_host.close()
+    ftp_client.close()
 
 
 def _receive_dir_validate(access, listing):
@@ -71,15 +71,16 @@ def _send_dir(access, local_dir_path, listing):
         raise InvalidAccessInformationError('Could not find "url" in access information.')
     
     ftp_host, ftp_path = parse_ftp(url)
-    ftp_host = get_ftp_client(ftp_host, access)
+    ftp_client = get_ftp_client(ftp_host, access)
     
     if listing:
-        ftp_host.makedirs(ftp_path, exist_ok=True)
-        upload_ftp_listing(ftp_host, local_dir_path, ftp_path, listing)
+        if ftp_path:
+            ftp_client.makedirs(ftp_path, exist_ok=True)
+        upload_ftp_listing(ftp_client, local_dir_path, ftp_path, listing)
     else:
-        upload_ftp_directory(ftp_host, local_dir_path, ftp_path)
+        upload_ftp_directory(ftp_client, local_dir_path, ftp_path)
     
-    ftp_host.close()
+    ftp_client.close()
 
 
 def _send_dir_validate(access, listing):

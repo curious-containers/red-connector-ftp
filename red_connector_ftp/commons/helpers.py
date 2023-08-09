@@ -33,9 +33,9 @@ def get_ftp_client(ftp_host, access):
     ftp_password = None
     
     if 'auth' in access:
-        ftp_username = access.auth.username
-        if 'password' in access.auth:
-            ftp_password = access.auth.password
+        ftp_username = access['auth']['username']
+        if 'password' in access['auth']:
+            ftp_password = access['auth']['password']
     
     if ftp_password is None:
         return ftputil.FTPHost(ftp_host, ftp_username)
@@ -69,7 +69,8 @@ def upload_ftp_directory(ftp_host, base_directory, remote_directory):
     :param base_directory: The local base directory to upload from.
     :param remote_directory: The remote directory where files will be uploaded.
     """
-    ftp_host.makedirs(remote_directory, exist_ok=True)
+    if remote_directory:
+        ftp_host.makedirs(remote_directory, exist_ok=True)
     elements = os.listdir(base_directory)
     for element in elements:
         element_path = os.path.join(base_directory, element)

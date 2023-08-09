@@ -1,0 +1,30 @@
+[
+    {
+        "class": "File",
+        "basename": "test.txt"
+    },
+    {
+        "class": "File",
+        "basename": "new_file.txt"
+    },
+    {
+        "class": "Directory",
+        "basename": "foo",
+        "listing": [
+            {
+                "class": "File",
+                "basename": "test.npy"
+            },
+            {
+                "class": "Directory",
+                "basename": "bar",
+                "listing": [
+                    {
+                        "class": "File",
+                        "basename": "new_file.txt"
+                    }
+                ]
+            }
+        ]
+    }
+]

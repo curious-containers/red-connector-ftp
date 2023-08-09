@@ -9,8 +9,9 @@ homepage = "https://www.curious-containers.cc/"
 description = "RED Connector FTP is part of the Curious Containers project."
 
 [tool.poetry.dependencies]
-python = "^3.4"
+python = "^3.6"
 jsonschema = "^3.0"
+ftputil = "^5.0.4"
 
 [tool.poetry.dev-dependencies]
 

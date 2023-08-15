@@ -31,7 +31,6 @@ def _receive_file(access, local_file_path):
     ftp_host, ftp_path = parse_ftp(url)
     ftp_client = get_ftp_client(ftp_host, access)
     
-    print(ftp_client.listdir(ftp_client.curdir))
     if ftp_client.path.isfile(ftp_path):
         ftp_client.download(ftp_path, local_file_path)
     else:

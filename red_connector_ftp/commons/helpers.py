@@ -1,6 +1,7 @@
 import os
 import sys
 import ftputil
+import ftputil.session
 from functools import wraps
 from urllib.parse import urlparse
 
@@ -31,16 +32,17 @@ def get_ftp_client(ftp_host, access):
     """
     ftp_username = "anonymous"
     ftp_password = None
+    ftp_port = 21
     
     if 'auth' in access:
         ftp_username = access['auth']['username']
         if 'password' in access['auth']:
             ftp_password = access['auth']['password']
+    if 'port' in access:
+        ftp_port = access['port']
     
-    if ftp_password is None:
-        return ftputil.FTPHost(ftp_host, ftp_username)
-    else:
-        return ftputil.FTPHost(ftp_host, ftp_username, ftp_password)
+    session_factory = ftputil.session.session_factory(port=ftp_port)
+    return ftputil.FTPHost(ftp_host, ftp_username, ftp_password, session_factory=session_factory)
 
 def download_ftp_directory(ftp_host, base_directory, remote_directory):
     """

@@ -14,6 +14,7 @@ FILE_SCHEMA = {
     'type': 'object',
     'properties': {
         'url': {'type': 'string'},
+        'port': {'type': 'integer'},
         'auth': _AUTH_SCHEMA,
     },
     'additionalProperties': False,
